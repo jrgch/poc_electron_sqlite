@@ -1,57 +1,133 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Personas</title>
-    <style>
-      body { font-family: sans-serif; display: flex; gap: 20px; padding: 20px; }
-      table, th, td { border: 1px solid black; border-collapse: collapse; padding: 8px; }
-      table { width: 100%; }
-      .form { display: flex; flex-direction: column; gap: 10px; }
-    </style>
-  </head>
-  <body>
-    <div>
-      <h2>Lista de Personas</h2>
-      <table id="tabla">
-        <thead><tr><th>Nombre</th><th>Edad</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <div class="form">
-      <h2>Agregar Persona</h2>
-      <input id="nombre" placeholder="Nombre" />
-      <input id="edad" type="number" placeholder="Edad" />
-      <button id="guardar">Guardar</button>
-    </div>
-    <script>
-      const nombreInput = document.getElementById('nombre');
-      const edadInput = document.getElementById('edad');
-      const guardarBtn = document.getElementById('guardar');
-      const tablaBody = document.querySelector('#tabla tbody');
 
-      async function cargarPersonas() {
-        const personas = await window.api.getPersonas();
-        tablaBody.innerHTML = '';
-        personas.forEach(p => {
-          const row = document.createElement('tr');
-          row.innerHTML = `<td>${p.nombre}</td><td>${p.edad}</td>`;
-          tablaBody.appendChild(row);
-        });
-      }
+<head>
+  <meta charset="UTF-8" />
+  <title>Personas</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      gap: 20px;
+      padding: 20px;
+    }
 
-      guardarBtn.addEventListener('click', async () => {
-        const nombre = nombreInput.value.trim();
-        const edad = parseInt(edadInput.value);
-        if (nombre && !isNaN(edad)) {
-          await window.api.addPersona({ nombre, edad });
-          nombreInput.value = '';
-          edadInput.value = '';
-          cargarPersonas();
-        }
+    table,
+    th,
+    td {
+      border: 1px solid black;
+      border-collapse: collapse;
+      padding: 8px;
+    }
+
+    table {
+      width: 100%;
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <div>
+    <h2>Lista de Personas</h2>
+    <table id="tabla">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Edad</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div class="form">
+    <h2>Agregar Persona</h2>
+    <input id="nombre" placeholder="Nombre" />
+    <input id="edad" type="number" placeholder="Edad" />
+    <button id="guardar">Guardar</button>
+  </div>
+  <div style="width: 100%; margin-top: 30px;">
+    <h2>Gráfico de Edades</h2>
+    <canvas id="edadChart"></canvas>
+  </div>
+
+  <script>
+    let chart;
+
+    const nombreInput = document.getElementById('nombre');
+    const edadInput = document.getElementById('edad');
+    const guardarBtn = document.getElementById('guardar');
+    const tablaBody = document.querySelector('#tabla tbody');
+
+    async function cargarPersonas() {
+      const personas = await window.api.getPersonas();
+      tablaBody.innerHTML = '';
+
+      const labels = [];
+      const edades = [];
+
+      personas.forEach(p => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${p.nombre}</td>
+                          <td>${p.edad}</td>`;
+        tablaBody.appendChild(row);
+
+        labels.push(p.nombre);
+        edades.push(p.edad);
       });
 
-      cargarPersonas();
-    </script>
-  </body>
+      actualizarGrafico(labels, edades);
+    }
+
+    function actualizarGrafico(labels, data) {
+      if (chart) {
+        chart.destroy(); // Destruir el gráfico anterior para evitar superposiciones
+      }
+
+      const ctx = document.getElementById('edadChart').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Edad',
+            data: data,
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              stepSize: 1
+            }
+          }
+        }
+      });
+    }
+
+    guardarBtn.addEventListener('click', async () => {
+      const nombre = nombreInput.value.trim();
+      const edad = parseInt(edadInput.value);
+      if (nombre && !isNaN(edad)) {
+        await window.api.addPersona({ nombre, edad });
+        nombreInput.value = '';
+        edadInput.value = '';
+        cargarPersonas();
+      }
+    });
+
+    cargarPersonas();
+  </script>
+</body>
+
 </html>
