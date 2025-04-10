@@ -1,0 +1,35 @@
+# Node modules
+node_modules/
+
+# Electron build output
+dist/
+build/
+
+# SQLite database files (puedes modificar esto si necesitas subir algún .db específico)
+*.db
+*.sqlite
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# VS Code settings
+.vscode/
+
+# Environment variables
+.env
+.env.*
+
+# Electron-specific cache
+.cache/
+*.asar
+
+# Others
+.idea/
+*.iml
