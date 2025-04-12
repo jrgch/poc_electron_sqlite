@@ -8,6 +8,19 @@
     "dist": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "build": {
+    "appId": "co.edu.talentum.poc_electron_sqlite",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "db-config.json",
+        "to": "db-config.json"
+      }
+    ]
+  },
   "author": "",
   "license": "ISC",
   "devDependencies": {
